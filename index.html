@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Elm Codegen Preview</title>
+    <script src="//cdn.jsdelivr.net/webcomponentsjs/0.6.0/webcomponents.min.js"></script>
+    <link rel="import" href="bower_components/juicy-ace-editor/juicy-ace-editor.html" />
+    <link rel="stylesheet" href="build/main.css" />
+  </head>
+  <body>
+    <div id="Container"></div>
+    <script src="build/elm.js"></script>
+    <script>
+      Elm.embed(Elm.Main, document.getElementById('Container'));
+    </script>
+  </body>
+</html>

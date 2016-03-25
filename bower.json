@@ -1,0 +1,22 @@
+{
+  "name": "elm-codegen-preview",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "authors": [
+    "Luke Westby <opensource@lukewestby.com>"
+  ],
+  "license": "MIT",
+  "moduleType": [],
+  "homepage": "lukewestby.com/elm-codegen-preview",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "juicy-ace-editor": "1.1.1"
+  }
+}
