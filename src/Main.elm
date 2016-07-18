@@ -21,14 +21,14 @@ type alias Model =
 
 defaultSourceCode : String
 defaultSourceCode =
-  """module Main where
+  """module Main exposing (..)
 
-import Graphics.Element exposing (Element, show)
+import Html exposing (..)
 
 
-main : Element
+main : Html msg
 main =
-  show "Hello world!"
+  text "Hello world!"
   """
 
 
@@ -91,6 +91,7 @@ compileCode source =
         , ("source", Encode.string source)
         ]
   in
+    -- Http.post "http://localhost:1337/compile"
     Http.post "https://ecaas.herokuapp.com/compile"
       |> Http.withHeader "Content-Type" "application/json"
       |> Http.withJsonBody payload
