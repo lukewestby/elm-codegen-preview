@@ -1,13 +1,18 @@
-module Stylesheets where
+port module Stylesheets exposing (..)
 
 import Css exposing (..)
 import Css.Elements exposing (..)
 import Css.File as CssFile
 import Classes exposing (..)
+import Html
+import Html.App as Html
 
 
-port files : CssFile.CssFileStructure
-port files =
+port files : CssFile.CssFileStructure -> Cmd msg
+
+
+cssFiles : CssFile.CssFileStructure
+cssFiles =
   CssFile.toFileStructure
     [ ("main.css", CssFile.compile css) ]
 
@@ -68,3 +73,13 @@ css =
         ]
       ]
     ]
+
+
+main : Program Never
+main =
+    Html.program
+        { init = ( (), files cssFiles )
+        , view = \_ -> (Html.div [] [])
+        , update = \_ _ -> ( (), Cmd.none )
+        , subscriptions = \_ -> Sub.none
+        }

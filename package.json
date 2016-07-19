@@ -6,7 +6,7 @@
   "scripts": {
     "build:mkdir": "mkdir -p build",
     "build:bower": "bower install",
-    "build:elm": "elm-make ./src/Main.elm --output build/elm.js",
+    "build:elm": "elm-make ./src/Main.elm --output build/elm.js --yes",
     "build:css": "elm-css ./src/Stylesheets.elm -m Stylesheets -o build/",
     "build": "npm-run-all build:mkdir build:bower build:elm build:css"
   },
