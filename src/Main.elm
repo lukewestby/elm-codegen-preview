@@ -1,13 +1,13 @@
-module Main where
+module Main exposing (main)
 
 import Task exposing (Task)
 import Json.Encode as Encode
+import Json.Decode as Decode
 import Html exposing (Html, Attribute)
 import Html.Attributes as HtmlAttr
 import Html.Events as HtmlEv
-import Effects exposing (Effects, Never)
-import StartApp exposing (App)
-import Http.Extra as Http
+import Html.App
+import HttpBuilder as Http
 import Classes exposing (Classes(..))
 
 
@@ -21,14 +21,14 @@ type alias Model =
 
 defaultSourceCode : String
 defaultSourceCode =
-  """module Main where
+  """module Main exposing (..)
 
-import Graphics.Element exposing (Element, show)
+import Html exposing (..)
 
 
-main : Element
+main : Html msg
 main =
-  show "Hello world!"
+  text "Hello world!"
   """
 
 
@@ -48,12 +48,12 @@ type Action
   | CompilationFailure
 
 
-update : Action -> Model -> (Model, Effects Action)
+update : Action -> Model -> (Model, Cmd Action)
 update action model =
   case action of
     UpdateSourceCode newValue ->
       ( { model | sourceCode = newValue }
-      , Effects.none
+      , Cmd.none
       )
 
     CompilationStart ->
@@ -69,7 +69,7 @@ update action model =
         | isProcessing = False
         , compilationResult = Just result
         }
-      , Effects.none
+      , Cmd.none
       )
 
     CompilationFailure ->
@@ -78,11 +78,11 @@ update action model =
         , compilationResult = Nothing
         , compilationFailed = True
         }
-      , Effects.none
+      , Cmd.none
       )
 
 
-compileCode : String -> Effects Action
+compileCode : String -> Cmd Action
 compileCode source =
   let
     payload =
@@ -91,17 +91,17 @@ compileCode source =
         , ("source", Encode.string source)
         ]
   in
+    -- Http.post "http://localhost:1337/compile"
     Http.post "https://ecaas.herokuapp.com/compile"
       |> Http.withHeader "Content-Type" "application/json"
       |> Http.withJsonBody payload
       |> Http.send Http.stringReader Http.stringReader
-      |> Task.map (.data >> CompilationSuccess)
-      |> (flip Task.onError) (always CompilationFailure >> Task.succeed)
-      |> Effects.task
+      |> Task.map .data
+      |> Task.perform (always CompilationFailure) CompilationSuccess
 
 
-view : Signal.Address Action -> Model -> Html
-view address model =
+view : Model -> Html Action
+view model =
   let
     compileButtonText =
       if model.isProcessing then
@@ -121,7 +121,7 @@ view address model =
           , HtmlAttr.attribute "value" model.sourceCode
           , HtmlAttr.attribute "softtabs" "true"
           , HtmlAttr.attribute "tabsize" "2"
-          , HtmlEv.on "change" HtmlEv.targetValue (UpdateSourceCode >> Signal.message address)
+          , HtmlEv.on "change" (Decode.at ["target", "value"] Decode.string |> Decode.map UpdateSourceCode)
           ]
           [ Html.text defaultSourceCode ]
         , Html.node "juicy-ace-editor"
@@ -135,7 +135,7 @@ view address model =
       , Html.div
         [ Classes.class [ Button ] ]
         [ Html.button
-          [ HtmlEv.onClick address CompilationStart
+          [ HtmlEv.onClick CompilationStart
           , HtmlAttr.disabled model.isProcessing
           ]
           [ Html.text compileButtonText ]
@@ -143,26 +143,18 @@ view address model =
       ]
 
 
-app : App Model
-app =
-  StartApp.start
+main : Program Never
+main =
+    Html.App.program
     { update = update
     , view = view
-    , init = (initialModel, Effects.none)
-    , inputs = []
+    , init = (initialModel, Cmd.none)
+    , subscriptions = (always Sub.none)
     }
 
 
-port tasks : Signal (Task Never ())
-port tasks =
-  app.tasks
-
-
+{-
 port model : Signal Model
 port model =
   Signal.map (Debug.log "model") app.model
-
-
-main : Signal Html
-main =
-  app.html
+-}

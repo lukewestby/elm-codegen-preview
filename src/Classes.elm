@@ -1,7 +1,4 @@
-module Classes
-  ( Classes(..)
-  , class
-  ) where
+module Classes exposing (Classes(..), class)
 
 import Html exposing (Attribute)
 import Html.CssHelpers as HtmlCss
@@ -13,6 +10,6 @@ type Classes
   | Button
 
 
-class : List Classes -> Attribute
+class : List Classes -> Attribute msg
 class =
-  HtmlCss.namespace "" |> .class
+  HtmlCss.withNamespace "" |> .class
